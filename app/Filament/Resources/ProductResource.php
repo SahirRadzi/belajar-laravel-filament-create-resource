@@ -2,16 +2,19 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ProductResource\Pages;
-use App\Filament\Resources\ProductResource\RelationManagers;
-use App\Models\Product;
+use Forms\Set;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use App\Models\Product;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
+use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\ProductResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\ProductResource\RelationManagers;
+use Filament\Tables\Filters\QueryBuilder\Constraints\TextConstraint;
 
 class ProductResource extends Resource
 {
@@ -24,19 +27,27 @@ class ProductResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                     ->afterStateUpdated(function (string $operation, string $state, Forms\Set $set) {
+                        $set('slug', Str::slug($state));
+                    })
+                    ->live(onBlur: true)
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->helperText('Enter specific name of product.'),
+                 Forms\Components\TextInput::make('slug')
+                    ->readOnly()
+                    ->unique(ignorable: fn($record) => $record)
+                    ->required()
+                    ->maxLength(255)
+                    ->helperText('Auto-generate.'),
                 Forms\Components\Select::make('category_id')
-                    ->relationship('category', 'name'),
-                Forms\Components\TextInput::make('slug')
-                    ->required()
-                    ->maxLength(255),
+                    ->relationship('category', 'name',  modifyQueryUsing: fn (Builder $query) => $query->where('is_active', true)), // modify Query
                 Forms\Components\TextInput::make('stock')
                     ->numeric(),
                 Forms\Components\TextInput::make('price')
                     ->required()
                     ->numeric()
-                    ->prefix('$'),
+                    ->prefix('RM '),
                 Forms\Components\Toggle::make('is_active')
                     ->required(),
                 Forms\Components\FileUpload::make('image')
@@ -63,7 +74,7 @@ class ProductResource extends Resource
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('price')
-                    ->money()
+                    ->money('RM ')
                     ->sortable(),
                 Tables\Columns\IconColumn::make('is_active')
                     ->boolean(),

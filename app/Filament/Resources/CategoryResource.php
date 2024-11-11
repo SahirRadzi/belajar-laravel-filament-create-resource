@@ -2,16 +2,18 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\CategoryResource\Pages;
-use App\Filament\Resources\CategoryResource\RelationManagers;
-use App\Models\Category;
+use Forms\Set;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use App\Models\Category;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
+use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\CategoryResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\CategoryResource\RelationManagers;
 
 class CategoryResource extends Resource
 {
@@ -24,11 +26,19 @@ class CategoryResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->afterStateUpdated(function (string $operation, string $state, Forms\Set $set) {
+                    $set('slug', Str::slug($state));
+                    })
+                    ->live(onBlur: true)
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->helperText('Enter specific name of product.'),
                 Forms\Components\TextInput::make('slug')
+                    ->unique(ignorable: fn($record) => $record)
+                    ->readOnly()
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->helperText('Auto-generate.'),
                 Forms\Components\Textarea::make('description')
                     ->columnSpanFull(),
                 Forms\Components\Toggle::make('is_active')
