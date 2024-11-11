@@ -78,7 +78,7 @@ class ListOrders extends ListRecords
 
            'Cancelled' => Tab::make()
             ->badge($cancelled)
-            ->badgeColor('success')
+            ->badgeColor('warning')
             ->modifyQueryUsing(function ($query) {
             return $query->where('status','cancelled');
 
