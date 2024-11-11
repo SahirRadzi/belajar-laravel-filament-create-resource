@@ -28,6 +28,8 @@ class OrderResource extends Resource
                     ->maxLength(255),
                 Forms\Components\Select::make('user_id')
                     ->relationship('user', 'name')
+                    ->searchable()
+                    ->preload()
                     ->required(),
                 Forms\Components\Select::make('payment_method_id')
                     ->relationship('paymentMethod', 'name')
