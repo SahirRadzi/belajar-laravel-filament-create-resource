@@ -86,6 +86,13 @@ class OrderResource extends Resource
                 Tables\Filters\SelectFilter::make('paymentMethod')
                     ->label('Payment method')
                     ->relationship('paymentMethod','name'),
+                Tables\Filters\SelectFilter::make('status')
+                    ->label('Status')
+                    ->options([
+                        'pending' => 'pending',
+                        'processing' => 'processing',
+                        'completed' => 'completed',
+                    ]),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
