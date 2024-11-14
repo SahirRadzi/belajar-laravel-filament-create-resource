@@ -12,7 +12,9 @@ class Order extends Model
 
     protected $fillable = [
         'order_number',
-        'user_id',
+        'name',
+        'phone',
+        'email',
         'payment_method_id',
         'total_amount',
         'status',
@@ -21,10 +23,6 @@ class Order extends Model
     public function paymentMethod(): BelongsTo
     {
         return $this->belongsTo(PaymentMethod::class);
-    }
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
     }
 
 }
